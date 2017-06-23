@@ -7,7 +7,7 @@ public class TestA {
 		
 		System.out.println(Integer.MAX_VALUE + 1);
 		
-		String str = "param.sdf";
+		String str = "param.sdfc";
 		System.out.println(str.substring("param.".length()));
 	}
 }
