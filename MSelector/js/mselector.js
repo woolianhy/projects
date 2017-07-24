@@ -71,12 +71,13 @@ window.MSelector = (function(){
 				e.preventDefault();
 				var target = e.target;
 				var columnIdx = this.getAttribute('columnIdx');
-				that._columnPosMap[columnIdx + ''] = {
-					'begin-y': e.targetTouches[0].screenY,
-					'begin-top': parseFloat(this.style.top.replace(/[^\d-\.]/g, '')||0)
-				};
-				// this.setAttribute('begin-y', e.targetTouches[0].screenY);
-				// this.setAttribute('begin-top', this.style.top.replace(/[^\d-\.]/g, '')||0);
+				var posParam = that._columnPosMap[columnIdx + ''];
+				if(!posParam){
+					posParam = {};
+					that._columnPosMap[columnIdx + ''] = posParam;
+				}
+				posParam['begin-y'] = e.targetTouches[0].screenY;
+				posParam['begin-top'] = posParam['current-y'] || 0;
 			});
 			this._columnElements[i].addEventListener('touchmove', function(e){
 				e.preventDefault();
@@ -85,15 +86,19 @@ window.MSelector = (function(){
 				var columnIdx = this.getAttribute('columnIdx');
 				var beginY = that._columnPosMap[columnIdx + '']['begin-y'];
 				var beginTop = that._columnPosMap[columnIdx + '']['begin-top'];
-				// var beginY = parseFloat(this.getAttribute('begin-y'));
-				// var beginTop = parseFloat(this.getAttribute('begin-top'));
-				this.style.top = (beginTop + screenY - beginY) + 'px';
+				var top = (beginTop + screenY - beginY);
+				var posParam = that._columnPosMap[columnIdx + ''];
+				posParam['current-y'] = top;
+				// this.style.top = top + 'px';
+				this.style["-webkit-transform"] = 'translate3d(0,' + top + 'px,0)';
 			});
 			this._columnElements[i].addEventListener('touchend', function(e){
 				e.preventDefault();
 				var target = e.target;
 				var result = gearTooth(contentElement, this, that._element.querySelector('.content-selected'));
 				var columnIdx = parseInt(this.getAttribute('columnIdx'), 10);
+				var posParam = that._columnPosMap[columnIdx + ''];
+				posParam['current-y'] = result.top;
 				that.selectedData[columnIdx] = this.childNodes[result.targetIdx].getAttribute('item-code');
 				if(that.oncolumnchange){
 					that.oncolumnchange(columnIdx, result.targetIdx, that.selectedData[columnIdx]);
@@ -152,7 +157,15 @@ window.MSelector = (function(){
 		var targetTop = targetElement.getBoundingClientRect().top;
 		var height = targetElement.getBoundingClientRect().height;
 		var offset = targetTop - contentTop;
-		this._columnElements[colIdx].style.top = (offset - height * itemIdx) + 'px';
+		var top = (offset - height * itemIdx);
+		var posParam = this._columnPosMap[colIdx + ''];
+		if(!posParam){
+			posParam = {};
+			this._columnPosMap[colIdx + ''] = posParam;
+		}
+		posParam['current-y'] = top;
+		// this._columnElements[colIdx].style.top = top + 'px';
+		this._columnElements[colIdx].style["-webkit-transform"] = 'translate3d(0,' + top + 'px,0)';
 		this.selectedData[colIdx] = this._columnElements[colIdx].childNodes[itemIdx].getAttribute('item-code');
 		if(this.oncolumnchange){
 			this.oncolumnchange(colIdx, itemIdx, this.selectedData[colIdx]);
@@ -176,8 +189,10 @@ window.MSelector = (function(){
 		if(targetIdx > len - 1){
 			targetIdx = len - 1;
 		}
-		element.style.top = (offset - height * targetIdx) + 'px';
-		return {targetIdx: targetIdx};
+		var top = offset - height * targetIdx;
+		// element.style.top = top + 'px';
+		element.style["-webkit-transform"] = 'translate3d(0,' + top + 'px,0)';
+		return {targetIdx: targetIdx, top: top};
 	}
 	return mSelector;
 })();
