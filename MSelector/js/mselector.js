@@ -1,4 +1,7 @@
 window.MSelector = (function(){
+	
+	"use strict";
+
 	var mSelector = function(param){
 		this._element = null;
 		this._columnElements = [];
