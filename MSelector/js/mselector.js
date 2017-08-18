@@ -201,6 +201,9 @@ window.MSelector = (function(){
 })();
 
 window.MCalendar = (function(){
+
+	"use strict";
+
 	var mCalendar = function(param){
 		this.trigger = null;
 		this.target = null;
